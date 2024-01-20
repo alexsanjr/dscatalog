@@ -1,4 +1,4 @@
-package com.alexsanjr.dscatalog.controllers.services;
+package com.alexsanjr.dscatalog.services;
 
 import com.alexsanjr.dscatalog.dto.CategoryDTO;
 import com.alexsanjr.dscatalog.entities.Category;
@@ -19,5 +19,10 @@ public class CategoryService {
     public List<CategoryDTO> findAll() {
         List<Category> list = repository.findAll();
         return list.stream().map(CategoryDTO::new).toList();
+    }
+    @Transactional(readOnly = true)
+    public CategoryDTO findById(Long id) {
+        Category entity = repository.getReferenceById(id);
+        return new CategoryDTO(entity);
     }
 }
