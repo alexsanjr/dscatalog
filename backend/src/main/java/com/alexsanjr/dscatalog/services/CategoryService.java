@@ -27,4 +27,11 @@ public class CategoryService {
                 () -> new ResourceNotFoundException("Resource not found!"));
         return new CategoryDTO(entity);
     }
+
+    @Transactional
+    public CategoryDTO insert(CategoryDTO dto) {
+        Category entity = new Category(dto.id(), dto.name());
+        entity = repository.save(entity);
+        return new CategoryDTO(entity);
+    }
 }
