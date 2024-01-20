@@ -22,7 +22,8 @@ public class CategoryService {
     }
     @Transactional(readOnly = true)
     public CategoryDTO findById(Long id) {
-        Category entity = repository.getReferenceById(id);
+        Category entity = repository.findById(id).orElseThrow(
+                () -> new RuntimeException("Resource not found!"));
         return new CategoryDTO(entity);
     }
 }
