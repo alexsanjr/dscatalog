@@ -1,5 +1,6 @@
 package com.alexsanjr.dscatalog.entities;
 
+import com.alexsanjr.dscatalog.dto.ProductDTO;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
@@ -14,6 +15,7 @@ import java.time.Instant;
 import java.util.HashSet;
 import java.util.Objects;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 @Entity
 @Table(name = "tb_product")
@@ -47,6 +49,17 @@ public class Product {
         this.price = price;
         this.imgUrl = imgUrl;
         this.date = date;
+    }
+
+    public Product(ProductDTO dto) {
+        id = dto.id();
+        name = dto.name();
+        description = dto.description();
+        price = dto.price();
+        imgUrl = dto.imgUrl();
+        date = dto.date();
+        categories = dto.categories().stream().map(obj -> new Category(obj.id(), obj.name()))
+                .collect(Collectors.toSet());
     }
 
     public Long getId() {
