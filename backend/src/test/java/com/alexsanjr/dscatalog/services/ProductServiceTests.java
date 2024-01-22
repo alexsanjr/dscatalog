@@ -1,11 +1,14 @@
 package com.alexsanjr.dscatalog.services;
 
 import com.alexsanjr.dscatalog.dto.ProductDTO;
+import com.alexsanjr.dscatalog.entities.Category;
 import com.alexsanjr.dscatalog.entities.Product;
+import com.alexsanjr.dscatalog.repositories.CategoryRepository;
 import com.alexsanjr.dscatalog.repositories.ProductRepository;
 import com.alexsanjr.dscatalog.services.exceptions.DatabaseException;
 import com.alexsanjr.dscatalog.services.exceptions.ResourceNotFoundException;
 import com.alexsanjr.dscatalog.tests.Factory;
+import jakarta.persistence.EntityNotFoundException;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -33,11 +36,16 @@ public class ProductServiceTests {
     @Mock
     private ProductRepository repository;
 
+    @Mock
+    private CategoryRepository categoryRepository;
+
     private Long existingId;
     private Long nonExistingId;
     private Long dependentId;
     private PageImpl<Product> page;
     private Product product;
+    private Category category;
+    private ProductDTO productDTO;
 
     @BeforeEach
     void setUp() throws Exception {
@@ -45,12 +53,24 @@ public class ProductServiceTests {
         nonExistingId = 2L;
         dependentId = 3L;
         product = Factory.createProduct();
+        productDTO = Factory.createProductDTO();
+        category = Factory.createCategory();
         page = new PageImpl<>(List.of(product));
 
         Mockito.when(repository.findAll((Pageable) ArgumentMatchers.any())).thenReturn(page);
+
         Mockito.when(repository.save(ArgumentMatchers.any())).thenReturn(product);
+
         Mockito.when(repository.findById(existingId)).thenReturn(Optional.of(product));
         Mockito.when(repository.findById(nonExistingId)).thenReturn(Optional.empty());
+
+        Mockito.when(repository.getReferenceById(existingId)).thenReturn(product);
+        Mockito.when(repository.getReferenceById(nonExistingId)).thenThrow(EntityNotFoundException.class);
+
+        Mockito.when(categoryRepository.getReferenceById(existingId)).thenReturn(category);
+        Mockito.when(categoryRepository.getReferenceById(nonExistingId)).thenThrow(EntityNotFoundException.class);
+
+        Mockito.when(categoryRepository.getReferenceById(existingId)).thenReturn(category);
 
         Mockito.doNothing().when(repository).deleteById(existingId);
         Mockito.doThrow(DataIntegrityViolationException.class).when(repository).deleteById(dependentId);
@@ -58,6 +78,32 @@ public class ProductServiceTests {
         Mockito.when(repository.existsById(existingId)).thenReturn(true);
         Mockito.when(repository.existsById(nonExistingId)).thenReturn(false);
         Mockito.when(repository.existsById(dependentId)).thenReturn(true);
+    }
+
+    @Test
+    public void findByIdShouldReturnProductDtoWhenIdExists() {
+        ProductDTO result = service.findById(existingId);
+        Assertions.assertNotNull(result);
+    }
+
+    @Test
+    public void findByIdShouldThrowResourceNotFoundExceptionWhenIdDoesNotExists() {
+
+        Assertions.assertThrows(ResourceNotFoundException.class, () -> {
+            service.findById(nonExistingId);
+        });
+    }
+
+    @Test
+    public void updateShouldReturnProductDtoWhenIdExists() {
+        ProductDTO result = service.update(existingId, productDTO);
+        Assertions.assertNotNull(result);
+    }
+
+    public void updateShouldThrowResourceNotFoundExceptionWhenIdDoesNotExists() {
+        Assertions.assertThrows(ResourceNotFoundException.class, () -> {
+            ProductDTO result = service.update(nonExistingId, productDTO);
+        });
     }
 
     @Test
@@ -94,6 +140,4 @@ public class ProductServiceTests {
             service.delete(dependentId);
         });
     }
-
-
 }
