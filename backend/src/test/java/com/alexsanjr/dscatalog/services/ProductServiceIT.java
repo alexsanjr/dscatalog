@@ -53,14 +53,15 @@ public class ProductServiceIT {
         Assertions.assertTrue(result.isEmpty());
     }
 
+    @Test
     public void findAllShouldReturnSortedPageWhenSortByName() {
         PageRequest pageRequest = PageRequest.of(0, 10, Sort.by("name"));
         Page<ProductDTO> result = service.findAll(pageRequest);
 
-        Assertions.assertTrue(result.isEmpty());
+        Assertions.assertFalse(result.isEmpty());
         Assertions.assertEquals("Macbook Pro", result.getContent().get(0).name());
-        Assertions.assertEquals("Pc Gamer", result.getContent().get(1).name());
-        Assertions.assertEquals("Pc Gamer Alfa", result.getContent().get(2).name());
+        Assertions.assertEquals("PC Gamer", result.getContent().get(1).name());
+        Assertions.assertEquals("PC Gamer Alfa", result.getContent().get(2).name());
     }
 
     @Test
@@ -70,6 +71,7 @@ public class ProductServiceIT {
         Assertions.assertEquals(countTotalProducts - 1, repository.count());
     }
 
+    @Test
     public void deleteShouldThrowResourceNotFoundExceptionWhenIdDoesNotExists() {
         Assertions.assertThrows(ResourceNotFoundException.class,() -> {
             service.delete(nonExistingId);
