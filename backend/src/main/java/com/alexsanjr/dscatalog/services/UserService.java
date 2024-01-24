@@ -2,6 +2,7 @@ package com.alexsanjr.dscatalog.services;
 
 import com.alexsanjr.dscatalog.dto.RoleDTO;
 import com.alexsanjr.dscatalog.dto.UserDTO;
+import com.alexsanjr.dscatalog.dto.UserInsertDTO;
 import com.alexsanjr.dscatalog.entities.Role;
 import com.alexsanjr.dscatalog.entities.User;
 import com.alexsanjr.dscatalog.repositories.RoleRepository;
@@ -13,12 +14,16 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
 @Service
 public class UserService {
+
+    @Autowired
+    private BCryptPasswordEncoder passwordEncoder;
 
     @Autowired
     private UserRepository repository;
@@ -39,7 +44,7 @@ public class UserService {
     }
 
     @Transactional
-    public UserDTO insert(UserDTO dto) {
+    public UserDTO insert(UserInsertDTO dto) {
         User entity = new User();
         copyDtoToEntity(dto, entity);
         entity = repository.save(entity);
@@ -47,7 +52,7 @@ public class UserService {
     }
 
     @Transactional
-    public UserDTO update(Long id, UserDTO dto) {
+    public UserDTO update(Long id, UserInsertDTO dto) {
         try {
             User entity = repository.getReferenceById(id);
             copyDtoToEntity(dto, entity);
@@ -72,10 +77,11 @@ public class UserService {
         }
     }
 
-    private void copyDtoToEntity(UserDTO dto, User entity) {
+    private void copyDtoToEntity(UserInsertDTO dto, User entity) {
         entity.setFirstName(dto.firstName());
         entity.setLastName(dto.lastName());
         entity.setEmail(dto.email());
+        entity.setPassword(passwordEncoder.encode(dto.password()));
         entity.getRoles().clear();
 
         entity.getRoles().clear();
