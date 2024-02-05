@@ -4,6 +4,7 @@ import com.alexsanjr.dscatalog.dto.CategoryDTO;
 import com.alexsanjr.dscatalog.dto.ProductDTO;
 import com.alexsanjr.dscatalog.entities.Category;
 import com.alexsanjr.dscatalog.entities.Product;
+import com.alexsanjr.dscatalog.projections.ProductProjection;
 import com.alexsanjr.dscatalog.repositories.CategoryRepository;
 import com.alexsanjr.dscatalog.repositories.ProductRepository;
 import com.alexsanjr.dscatalog.services.exceptions.DatabaseException;
@@ -16,6 +17,8 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
+
+import java.util.Arrays;
 
 @Service
 public class ProductService {
@@ -85,4 +88,8 @@ public class ProductService {
         }
     }
 
+    @Transactional(readOnly = true)
+    public Page<ProductProjection> testQuery(Pageable pageable) {
+        return repository.searchProducts(Arrays.asList(1L, 3L), "ma", pageable);
+    }
 }
