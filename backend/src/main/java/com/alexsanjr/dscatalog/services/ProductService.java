@@ -18,7 +18,9 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.List;
 
 @Service
 public class ProductService {
@@ -89,7 +91,12 @@ public class ProductService {
     }
 
     @Transactional(readOnly = true)
-    public Page<ProductProjection> testQuery(Pageable pageable) {
-        return repository.searchProducts(Arrays.asList(1L, 3L), "ma", pageable);
+    public Page<ProductProjection> findAllPaged(String name, String categoryId, Pageable pageable) {
+        List<Long> categoryIds = new ArrayList<>();
+
+        if (!"0".equals(categoryId)) {
+            categoryIds = Arrays.stream(categoryId.split(",")).map(Long::parseLong).toList();
+        }
+        return repository.searchProducts(categoryIds, name, pageable);
     }
 }
