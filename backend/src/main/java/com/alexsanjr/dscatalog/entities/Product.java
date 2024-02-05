@@ -1,6 +1,7 @@
 package com.alexsanjr.dscatalog.entities;
 
 import com.alexsanjr.dscatalog.dto.ProductDTO;
+import com.alexsanjr.dscatalog.projections.IdProjection;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
@@ -19,7 +20,7 @@ import java.util.stream.Collectors;
 
 @Entity
 @Table(name = "tb_product")
-public class Product {
+public class Product  implements IdProjection<Long> {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -62,6 +63,7 @@ public class Product {
                 .collect(Collectors.toSet());
     }
 
+    @Override
     public Long getId() {
         return id;
     }
